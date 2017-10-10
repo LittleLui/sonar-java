@@ -8,68 +8,30 @@ TEST:
   - semantic
 
 SQ_VERSION:
-  - LTS
   - DEV
-  - LATEST_RELEASE
 
 exclude:
 #exclude plugin tests on windows slaves
   - TEST: plugin
     SLAVE: windows
-    SQ_VERSION: LTS
-  - TEST: plugin
-    SLAVE: windows
     SQ_VERSION: DEV
-  - TEST: plugin
-    SLAVE: windows
-    SQ_VERSION: LATEST_RELEASE
 #exclude plugin tests on performance slaves
   - TEST: plugin
     SLAVE: performance
-    SQ_VERSION: LTS
-  - TEST: plugin
-    SLAVE: performance
     SQ_VERSION: DEV
-  - TEST: plugin
-    SLAVE: performance
-    SQ_VERSION: LATEST_RELEASE
 #exclude all ruling jobs on windows
   - TEST: ruling
     SLAVE: windows
-    SQ_VERSION: LTS
-  - TEST: ruling
-    SLAVE: windows
     SQ_VERSION: DEV
-  - TEST: ruling
-    SLAVE: windows
-    SQ_VERSION: LATEST_RELEASE
 #exclude all ruling jobs on performance slaves
   - TEST: ruling
     SLAVE: performance
-    SQ_VERSION: LTS
-  - TEST: ruling
-    SLAVE: performance
     SQ_VERSION: DEV
-  - TEST: ruling
-    SLAVE: performance
-    SQ_VERSION: LATEST_RELEASE
 #eclude all semantic jobs on windows slaves
   - TEST: semantic
     SLAVE: windows
-    SQ_VERSION: LTS
-  - TEST: semantic
-    SLAVE: windows
     SQ_VERSION: DEV
-  - TEST: semantic
-    SLAVE: windows
-    SQ_VERSION: LATEST_RELEASE
 #eclude all semantic jobs on performance slaves
   - TEST: semantic
     SLAVE: performance
-    SQ_VERSION: LTS
-  - TEST: semantic
-    SLAVE: performance
     SQ_VERSION: DEV
-  - TEST: semantic
-    SLAVE: performance
-    SQ_VERSION: LATEST_RELEASE
