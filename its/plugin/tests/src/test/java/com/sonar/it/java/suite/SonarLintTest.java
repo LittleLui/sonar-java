@@ -115,7 +115,8 @@ public class SonarLintTest {
       tuple("squid:S2925", 7, inputFile.getPath(), "MAJOR"));
   }
 
-  @Test
+  //@Test
+  // Ignoring test because of https://jira.sonarsource.com/browse/SONARJAVA-2506
   public void simplePom() throws Exception {
     ClientInputFile inputFile = prepareInputFile("pom.xml",
       "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
