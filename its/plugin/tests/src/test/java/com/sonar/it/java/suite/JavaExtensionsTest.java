@@ -40,7 +40,8 @@ public class JavaExtensionsTest {
   public void test() {
     MavenBuild build = MavenBuild.create(TestUtils.projectPom("java-extension"))
       .setCleanSonarGoals()
-      .setProperty("sonar.profile", "java-extension");
+      .setProperty("sonar.profile", "java-extension")
+      .setProperty("sonar.exclusions", "pom.xml");
     orchestrator.executeBuild(build);
 
     IssueClient issueClient = orchestrator.getServer().wsClient().issueClient();

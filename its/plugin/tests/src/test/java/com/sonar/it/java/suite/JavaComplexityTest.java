@@ -50,7 +50,8 @@ public class JavaComplexityTest {
       .setCleanSonarGoals()
       .setProperty("sonar.dynamicAnalysis", "false")
       .setProperty("sonar.java.binaries", "target")
-      .setProperty("sonar.profile", "java-complexity");
+      .setProperty("sonar.profile", "java-complexity")
+      .setProperty("sonar.exclusions", "pom.xml");
     orchestrator.executeBuild(build);
   }
 

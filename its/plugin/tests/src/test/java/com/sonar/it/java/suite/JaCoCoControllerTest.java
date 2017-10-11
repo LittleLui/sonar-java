@@ -64,6 +64,7 @@ public class JaCoCoControllerTest {
     MavenBuild build = MavenBuild.create(TestUtils.projectPom("coverage_error"))
       .setProperty("skipTests", "false")
       .setProperty("javaPluginVersion", javaVersion)
+      .setProperty("sonar.exclusions", "pom.xml")
       .setGoals("clean", "package");
     BuildResult buildResult = orchestrator.executeBuildQuietly(build);
     assertThat(buildResult.isSuccess()).isFalse();
@@ -75,6 +76,7 @@ public class JaCoCoControllerTest {
     MavenBuild build = MavenBuild.create(TestUtils.projectPom("coverage_error"))
       .setProperty("skipTests", "false")
       .setProperty("javaPluginVersion", javaVersion)
+      .setProperty("sonar.exclusions", "pom.xml")
       .setGoals("org.jacoco:jacoco-maven-plugin:prepare-agent clean verify", "sonar:sonar");
     BuildResult buildResult = orchestrator.executeBuildQuietly(build);
     assertThat(buildResult.isSuccess()).isTrue();
@@ -86,6 +88,7 @@ public class JaCoCoControllerTest {
     MavenBuild build = MavenBuild.create(TestUtils.projectPom("coverage_error"))
       .setProperty("skipTests", "false")
       .setProperty("javaPluginVersion", javaVersion)
+      .setProperty("sonar.exclusions", "pom.xml")
       .setGoals("org.jacoco:jacoco-maven-plugin:prepare-agent clean verify", "sonar:sonar").addArgument("-P coverage-per-test-forked");
     BuildResult buildResult = orchestrator.executeBuildQuietly(build);
     assertThat(buildResult.isSuccess()).isTrue();

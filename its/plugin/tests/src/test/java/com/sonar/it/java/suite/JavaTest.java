@@ -63,7 +63,8 @@ public class JavaTest {
   public void shouldAcceptFilenamesWithDollar() {
     MavenBuild build = MavenBuild.create(TestUtils.projectPom("dollar-in-names"))
       .setCleanPackageSonarGoals()
-      .setProperty("sonar.dynamicAnalysis", "false");
+      .setProperty("sonar.dynamicAnalysis", "false")
+      .setProperty("sonar.exclusions", "pom.xml");
     orchestrator.executeBuild(build);
 
     WsComponents.Component file = getComponent(JavaTestSuite.keyFor("org.sonar.it.core:dollar-in-names", "dollars/", "FilenameWith$Dollar.java"));
@@ -79,7 +80,8 @@ public class JavaTest {
     MavenBuild build = MavenBuild.create()
       .setPom(TestUtils.projectPom("commented-out-java-code"))
       .setCleanSonarGoals()
-      .setProperty("sonar.dynamicAnalysis", "false");
+      .setProperty("sonar.dynamicAnalysis", "false")
+      .setProperty("sonar.exclusions", "pom.xml");
     orchestrator.executeBuild(build);
 
     assertThat(getMeasureAsInteger("com.sonarsource.it.samples:commented-out-java-code", "ncloc")).isEqualTo(7);
@@ -93,7 +95,8 @@ public class JavaTest {
   public void shouldFailIfInvalidJavaPackage() {
     MavenBuild build = MavenBuild.create()
       .setPom(TestUtils.projectPom("invalid-java-package"))
-      .setCleanSonarGoals();
+      .setCleanSonarGoals()
+      .setProperty("sonar.exclusions", "pom.xml");
 
     BuildResult buildResult = orchestrator.executeBuildQuietly(build);
     assertThat(buildResult.getLastStatus()).isEqualTo(0);
@@ -109,7 +112,8 @@ public class JavaTest {
 
     MavenBuild build = MavenBuild.create()
       .setPom(TestUtils.projectPom("pom-xml"))
-      .setCleanPackageSonarGoals();
+      .setCleanPackageSonarGoals()
+      .setProperty("sonar.exclusions", "pom.xml");
     orchestrator.executeBuild(build);
 
     IssueClient issueClient = orchestrator.getServer().wsClient().issueClient();
@@ -122,7 +126,8 @@ public class JavaTest {
   public void measures_on_directory() {
     MavenBuild build = MavenBuild.create()
       .setPom(TestUtils.projectPom("measures-on-directory"))
-      .setCleanPackageSonarGoals();
+      .setCleanPackageSonarGoals()
+      .setProperty("sonar.exclusions", "pom.xml");
     BuildResult result = orchestrator.executeBuildQuietly(build);
     // since sonar-java 2.1 does not fail if multiple package in same directory.
     assertThat(result.getLastStatus()).isEqualTo(0);
@@ -132,13 +137,15 @@ public class JavaTest {
   public void multiple_package_in_directory_should_not_fail() throws Exception {
     MavenBuild inspection = MavenBuild.create()
       .setPom(TestUtils.projectPom("multiple-packages-in-directory"))
-      .setCleanPackageSonarGoals();
+      .setCleanPackageSonarGoals()
+      .setProperty("sonar.exclusions", "pom.xml");
     BuildResult result = orchestrator.executeBuildQuietly(inspection);
     assertThat(result.getLastStatus()).isEqualTo(0);
     inspection = MavenBuild.create()
       .setPom(TestUtils.projectPom("multiple-packages-in-directory"))
       .setProperty("sonar.skipPackageDesign", "true")
-      .setGoals("sonar:sonar");
+      .setGoals("sonar:sonar")
+      .setProperty("sonar.exclusions", "pom.xml");
     result = orchestrator.executeBuildQuietly(inspection);
     assertThat(result.getLastStatus()).isEqualTo(0);
 
@@ -151,7 +158,8 @@ public class JavaTest {
   public void filtered_issues() throws Exception {
     MavenBuild build = MavenBuild.create(TestUtils.projectPom("filtered-issues"))
       .setCleanPackageSonarGoals()
-      .setProperty("sonar.profile", "filtered-issues");
+      .setProperty("sonar.profile", "filtered-issues")
+      .setProperty("sonar.exclusions", "pom.xml");
     orchestrator.executeBuild(build);
 
     assertThat(getMeasureAsInteger("org.example:example", "violations")).isEqualTo(2);
@@ -206,6 +214,7 @@ public class JavaTest {
       .setProperty("sonar.profile", "ignored-test-check")
       .setProperty("sonar.java.test.binaries", "target/test-classes")
       .setProperty("sonar.java.test.libraries", new File(tmp.getRoot(), junit_4_11.getFilename()).getAbsolutePath())
+      .setProperty("sonar.exclusions", "pom.xml")
       .setCleanPackageSonarGoals();
 
     orchestrator.executeBuild(build);
@@ -218,7 +227,8 @@ public class JavaTest {
 
     MavenBuild build = MavenBuild.create(TestUtils.projectPom("java-version-aware-visitor"))
       .setCleanSonarGoals()
-      .setProperty("sonar.profile", "java-version-aware-visitor");
+      .setProperty("sonar.profile", "java-version-aware-visitor")
+      .setProperty("sonar.exclusions", "pom.xml");
 
     // no java version specified. maven scanner gets maven default version : java 5.
     orchestrator.executeBuild(build);

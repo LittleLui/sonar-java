@@ -57,7 +57,8 @@ public class SuppressWarningTest {
     MavenBuild build = MavenBuild.create(TestUtils.projectPom("suppress-warnings"))
       .setCleanSonarGoals()
       .setProperty("sonar.java.binaries", "target")
-      .setProperty("sonar.profile", "suppress-warnings");
+      .setProperty("sonar.profile", "suppress-warnings")
+      .setProperty("sonar.exclusions", "pom.xml");
     ORCHESTRATOR.executeBuild(build);
 
     assertThat(parseInt(getMeasure("org.example:example", "violations").getValue())).isEqualTo(3);
