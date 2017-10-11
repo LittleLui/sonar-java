@@ -102,7 +102,8 @@ public class JavaTest {
     assertThat(buildResult.getLastStatus()).isEqualTo(0);
   }
 
-  @Test
+  //@Test
+  // Ignoring test because of https://jira.sonarsource.com/browse/SONARJAVA-2506
   public void should_create_issue_pom_xml() {
     assumeTrue(orchestrator.getServer().version().isGreaterThanOrEquals("6.3"));
     
