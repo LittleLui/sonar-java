@@ -32,4 +32,6 @@ case "$TEST" in
   ;;
 esac
 cd its/$TEST
-mvn package -Pit-$TEST -Dsonar.runtimeVersion="$SQ_VERSION" -Dmaven.test.redirectTestOutputToFile=false -Dversion.enforcer.plugin=3.0.0-M1 -B -e -V
+mvn package -Pit-$TEST -Dsonar.runtimeVersion="$SQ_VERSION" -Dmaven.test.redirectTestOutputToFile=false \
+  -Dversion.enforcer.plugin=3.0.0-M1 -Dversion.jar.plugin=3.0.2 \
+  -B -e -V
