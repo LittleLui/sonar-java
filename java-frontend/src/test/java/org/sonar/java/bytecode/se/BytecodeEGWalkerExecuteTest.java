@@ -21,6 +21,8 @@ package org.sonar.java.bytecode.se;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.objectweb.asm.Label;
@@ -599,21 +601,21 @@ public class BytecodeEGWalkerExecuteTest {
 
   @Test
   public void test_invoke_static() throws Exception {
-    ProgramState programState = execute(invokeStatic("()V"));
-    assertEmptyStack(programState);
-
-    programState = execute(invokeStatic("()Z"));
+    ProgramState programState = execute(invokeStatic("foo", "()V"));
     assertStack(programState, new Constraint[] {null});
+
+    programState = execute(invokeStatic("bar", "()Z"));
+    assertStack(programState, new Constraint[][] {{ObjectConstraint.NOT_NULL, BooleanConstraint.FALSE, DivisionByZeroCheck.ZeroConstraint.ZERO}});
 
     SymbolicValue arg = new SymbolicValue();
-    programState = execute(invokeStatic("(I)I"), ProgramState.EMPTY_STATE.stackValue(arg));
-    assertStack(programState, new Constraint[] {null});
+    programState = execute(invokeStatic("qix", "(I)I"), ProgramState.EMPTY_STATE.stackValue(arg));
+    assertStack(programState, new Constraint[][] {{ObjectConstraint.NOT_NULL, BooleanConstraint.FALSE, DivisionByZeroCheck.ZeroConstraint.ZERO}});
     assertThat(programState.peekValue()).isNotEqualTo(arg);
 
-    programState = execute(invokeStatic("(II)V"), ProgramState.EMPTY_STATE.stackValue(arg).stackValue(arg));
-    assertEmptyStack(programState);
+    programState = execute(invokeStatic("gul", "(II)V"), ProgramState.EMPTY_STATE.stackValue(arg).stackValue(arg));
+    assertStack(programState, new Constraint[] {null});
 
-    assertThatThrownBy(() -> execute(invokeStatic("(I)V")))
+    assertThatThrownBy(() -> execute(invokeStatic("tak", "(I)V")))
       .hasMessage("Arguments mismatch for INVOKE");
   }
 
@@ -633,8 +635,8 @@ public class BytecodeEGWalkerExecuteTest {
     ProgramState programState = execute(invokeMethod(Opcodes.INVOKESPECIAL, "()V"), startingState);
     assertThat(hasConstraint(thisSv, programState, ObjectConstraint.NOT_NULL)).isTrue();
 
-    programState = execute(invokeMethod(Opcodes.INVOKESTATIC, "()V"), startingState);
-    assertThat(programState).isEqualTo(startingState);
+    programState = execute(invokeStatic("bar", "()Z"), startingState);
+    assertStack(programState, new Constraint[][] {{ObjectConstraint.NOT_NULL, BooleanConstraint.FALSE, DivisionByZeroCheck.ZeroConstraint.ZERO}, {null}});
 
     programState = execute(invokeMethod(Opcodes.INVOKESPECIAL, "(I)V"), startingState.stackValue(new SymbolicValue()));
     assertThat(hasConstraint(thisSv, programState, ObjectConstraint.NOT_NULL)).isTrue();
@@ -881,8 +883,8 @@ public class BytecodeEGWalkerExecuteTest {
     return constraints != null && constraints.get(constraint.getClass()) == constraint;
   }
 
-  private Instruction invokeStatic(String desc) {
-    return new Instruction(Opcodes.INVOKESTATIC, new Instruction.FieldOrMethod("owner", "name", desc, false));
+  private Instruction invokeStatic(String methodName, String desc) {
+    return new Instruction(Opcodes.INVOKESTATIC, new Instruction.FieldOrMethod("org/sonar/java/bytecode/se/BytecodeEGWalkerExecuteTest", methodName, desc, false));
   }
 
   private void assertStack(ProgramState ps, Constraint... constraints) {
@@ -932,12 +934,17 @@ public class BytecodeEGWalkerExecuteTest {
   }
 
   private ProgramState execute(Instruction instruction, ProgramState startingState) {
-    BytecodeEGWalker walker = new BytecodeEGWalker(new BehaviorCache(null, null));
+    SquidClassLoader squidClassLoader = new SquidClassLoader(Lists.newArrayList(new File("target/test-classes"), new File("target/classes")));
+    BytecodeEGWalker walker = new BytecodeEGWalker(new BehaviorCache(null, squidClassLoader));
     ProgramPoint programPoint = mock(ProgramPoint.class);
     when(programPoint.next()).thenReturn(programPoint);
     walker.programPosition = programPoint;
     walker.programState = startingState;
     walker.executeInstruction(instruction);
+    if (instruction.opcode == Opcodes.INVOKESTATIC) {
+      // X-PROC on static methods generate new states
+      return walker.workList.getFirst().programState;
+    }
     return walker.programState;
   }
 
@@ -989,6 +996,27 @@ public class BytecodeEGWalkerExecuteTest {
     assertThat(walker.workList.pop().programState.exitValue()).isNull();
   }
 
+  /**
+   * ---------------- used by test checking methods ---------
+   */
+  static void foo() {
+  }
+
+  static boolean bar() {
+    return false;
+  }
+
+  static int qix(int i) {
+    return 0;
+  }
+
+  static void gul(int i1, int i2) {
+  }
+
+  static boolean tak(int i) {
+    return true;
+  }
+
   private void tryCatch(boolean param) {
     try {
       bar();
@@ -1011,6 +1039,4 @@ public class BytecodeEGWalkerExecuteTest {
     }
   }
 
-  private void bar() {
-  }
 }

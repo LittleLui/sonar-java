@@ -20,6 +20,7 @@
 package org.sonar.java.se.xproc;
 
 import com.google.common.annotations.VisibleForTesting;
+
 import org.sonar.java.bytecode.loader.SquidClassLoader;
 import org.sonar.java.bytecode.se.BytecodeEGWalker;
 import org.sonar.java.resolve.JavaSymbol;
@@ -77,9 +78,18 @@ public class BehaviorCache {
         return new BytecodeEGWalker(this).getMethodBehavior(signature, symbol, classLoader);
       } else if(symbol != null) {
         MethodTree declaration = symbol.declaration();
-        if (declaration != null && SymbolicExecutionVisitor.methodCanNotBeOverriden(symbol)) {
-          sev.execute(declaration);
+        if (SymbolicExecutionVisitor.methodCanNotBeOverriden(symbol)) {
+          if (declaration != null) {
+            sev.execute(declaration);
+          } else {
+            return new BytecodeEGWalker(this).getMethodBehavior(signature, symbol, classLoader);
+          }
         }
+      } else {
+        // FIXME
+        // get(...) called from bytecode, method is necessarily static
+        // should handle other cases of non-overrideable methods
+        return new BytecodeEGWalker(this).getMethodBehavior(signature, symbol, classLoader);
       }
     }
     return behaviors.get(signature);
